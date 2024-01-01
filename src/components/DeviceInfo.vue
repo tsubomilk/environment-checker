@@ -63,28 +63,34 @@ export default {
           `Total: ${Math.round(performance.memory.totalJSHeapSize / 1048576)}MB, ` +
           `Used: ${Math.round(performance.memory.usedJSHeapSize / 1048576)}MB`;
       } else {
-        this.memoryInfo = 'メモリ情報は利用できません';
+        this.memoryInfo = 'メモリ情報はこのデバイスでは利用できません';
       }
     },
     getBatteryInfo() {
-      navigator.getBattery().then(battery => {
-        let chargingStatus = battery.charging ? 'charging' : 'not charging';
-        let level = Math.round(battery.level * 100);
-        let dischargingTime = battery.dischargingTime;
+      if ('getBattery' in navigator) {
+        // getBatteryが利用可能な場合、バッテリー情報を取得
+        navigator.getBattery().then(battery => {
+          let chargingStatus = battery.charging ? 'charging' : 'not charging';
+          let level = Math.round(battery.level * 100);
+          let dischargingTime = battery.dischargingTime;
 
-        let timeRemaining = '';
-        if (dischargingTime === Infinity) {
-          timeRemaining = 'Calculating time remaining...';
-        } else if (dischargingTime < 0) {
-          timeRemaining = 'Unavailable';
-        } else {
-          let hours = Math.floor(dischargingTime / 3600);
-          let minutes = Math.floor((dischargingTime % 3600) / 60);
-          timeRemaining = `${hours}h ${minutes}m`;
-        }
+          let timeRemaining = '';
+          if (dischargingTime === Infinity) {
+            timeRemaining = 'Calculating time remaining...';
+          } else if (dischargingTime < 0) {
+            timeRemaining = 'Unavailable';
+          } else {
+            let hours = Math.floor(dischargingTime / 3600);
+            let minutes = Math.floor((dischargingTime % 3600) / 60);
+            timeRemaining = `${hours}h ${minutes}m`;
+          }
 
-        this.batteryInfo = `Battery: ${chargingStatus}, Level: ${level}%, Time remaining: ${timeRemaining}`;
-      });
+          this.batteryInfo = `Battery: ${chargingStatus}, Level: ${level}%, Time remaining: ${timeRemaining}`;
+        });
+      } else {
+        // getBatteryが利用できない場合、メッセージを表示
+        this.batteryInfo = 'バッテリー情報はこのデバイスでは利用できません';
+      }
     },
     getPublicIP() {
       fetch('https://ipinfo.io/json')
