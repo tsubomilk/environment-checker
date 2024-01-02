@@ -1,22 +1,28 @@
 <template>
   <div>
-    <h1>Device Info</h1>
-    <h3>ソフトウェア</h3>
-    <p>OS: {{ osInfo }}</p>
-    <p>{{ browserInfo }}</p>
-    <h3>ハードウェア</h3>
-    <p>{{ cpuInfo }}</p>
-    <p>{{ gpuInfo }}</p>
-    <p>{{ memoryInfo }}</p>
-    <p>{{ batteryInfo }}</p>
-    <h3>ネットワーク</h3>
-    <p>{{ publicIP }}</p>
-    <p>{{ serviceProvider }}</p>
-    <p>{{ downloadSpeed }}</p>
+    <div id="content-to-print">
+      <h1>Device Info</h1>
+      <h3>ソフトウェア</h3>
+      <p>OS: {{ osInfo }}</p>
+      <p>{{ browserInfo }}</p>
+      <h3>ハードウェア</h3>
+      <p>{{ cpuInfo }}</p>
+      <p>{{ gpuInfo }}</p>
+      <p>{{ memoryInfo }}</p>
+      <p>{{ batteryInfo }}</p>
+      <h3>ネットワーク</h3>
+      <p>{{ publicIP }}</p>
+      <p>{{ serviceProvider }}</p>
+      <p>{{ downloadSpeed }}</p>
+    </div>
+    <button @click="exportToPDF">PDFとして保存</button>
   </div>
 </template>
 
+
 <script>
+import html2canvas from 'html2canvas';
+
 export default {
   props: {
     osInfo: String,
@@ -123,11 +129,43 @@ export default {
           console.error('Error measuring download speed:', error);
           this.downloadSpeed = 'Unable to measure download speed';
         });
+    },
+    saveAsImage() {
+      // スクリーンショットを撮りたい要素を選択
+      const element = document.getElementById('content-to-print');
+
+      // html2canvasを使ってキャンバスにレンダリング
+      html2canvas(element).then(canvas => {
+        // キャンバスを画像データURLに変換
+        const imgData = canvas.toDataURL('image/png');
+
+        // 画像データURLをダウンロードリンクにセット
+        const link = document.createElement('a');
+        link.href = imgData;
+        link.download = 'screenshot.png'; // 保存するファイル名
+        link.click(); // リンクをクリックしてダウンロード
+      });
     }
   }
 };
 </script>
 
 <style scoped>
-/* ここにスタイルを追加 */
+button {
+  background-color: #4CAF50; /* 緑色の背景 */
+  color: white; /* テキストは白色 */
+  padding: 15px 32px; /* パディング */
+  text-align: center; /* テキストを中央揃え */
+  text-decoration: none; /* テキストの下線をなくす */
+  display: inline-block; /* インラインブロック要素として表示 */
+  font-size: 16px; /* フォントサイズ */
+  margin: 4px 2px; /* マージン */
+  cursor: pointer; /* カーソルをポインターに */
+  border: none; /* 境界線なし */
+  border-radius: 5px; /* 角を丸く */
+}
+
+button:hover {
+  background-color: #45a049; /* ホバー時の背景色を少し濃く */
+}
 </style>
