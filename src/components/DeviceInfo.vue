@@ -1,5 +1,4 @@
 <template>
-  <div>
     <div id="content-to-print">
       <h1>Device Info</h1>
       <h3>ソフトウェア</h3>
@@ -16,12 +15,11 @@
       <p>{{ downloadSpeed }}</p>
     </div>
     <button @click="exportToPDF">PDFとして保存</button>
-  </div>
 </template>
 
 
 <script>
-import html2canvas from 'html2canvas';
+import html2pdf from 'html2pdf.js';
 
 export default {
   props: {
@@ -130,21 +128,21 @@ export default {
           this.downloadSpeed = 'Unable to measure download speed';
         });
     },
-    saveAsImage() {
-      // スクリーンショットを撮りたい要素を選択
+    exportToPDF() {
+      // PDFに含めたいコンテンツがある要素を取得
       const element = document.getElementById('content-to-print');
 
-      // html2canvasを使ってキャンバスにレンダリング
-      html2canvas(element).then(canvas => {
-        // キャンバスを画像データURLに変換
-        const imgData = canvas.toDataURL('image/png');
+      // html2pdfオプション
+      const options = {
+        margin: [10, 10, 10, 20], // 上、右、下、左の余白（mm単位）
+        filename: 'mypage.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
 
-        // 画像データURLをダウンロードリンクにセット
-        const link = document.createElement('a');
-        link.href = imgData;
-        link.download = 'screenshot.png'; // 保存するファイル名
-        link.click(); // リンクをクリックしてダウンロード
-      });
+      // html2pdfを使用してPDFを作成しダウンロード
+      html2pdf().from(element).set(options).save();
     }
   }
 };
